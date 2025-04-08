@@ -1,0 +1,30 @@
+{
+  "originalContent": "package main\n\nimport (\n\t\"fmt\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\tport := \"8080\"\n\t/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/\n\tmux := http.NewServeMux()\n\n\t/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in that particular directory.*/\n\tfileServer := http.FileServer(http.Dir(\".\"))\n\tmux.Handle(\"/\", fileServer)\n\n\t/*we need to configure our server. set its ports and the multiplex that passes every request\n\tto a given endpoint to the function that handles that end point*/\n\tserver := &http.Server{\n\t\tAddr:    \":\" + port,\n\t\tHandler: mux,\n\t}\n\tfmt.Printf(\"server running on port: %v\\n\", port)\n\t/*when we use the server.ListenAndServe, the main function pauses execution until\n\tthe server is stopped. so any code beneath listenAndServe would not run until\n\tthe server is stopped*/\n\tlog.Fatal(server.ListenAndServe())\n}\n",
+  "comments": [
+    {
+      "text": "/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/",
+      "line": 10,
+      "start": 83,
+      "end": 259
+    },
+    {
+      "text": "/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in that particular directory.*/",
+      "line": 15,
+      "start": 289,
+      "end": 510
+    },
+    {
+      "text": "/*we need to configure our server. set its ports and the multiplex that passes every request\n\tto a given endpoint to the function that handles that end point*/",
+      "line": 21,
+      "start": 588,
+      "end": 747
+    },
+    {
+      "text": "/*when we use the server.ListenAndServe, the main function pauses execution until\n\tthe server is stopped. so any code beneath listenAndServe would not run until\n\tthe server is stopped*/",
+      "line": 28,
+      "start": 866,
+      "end": 1051
+    }
+  ],
+  "filePath": "main.go"
+}
