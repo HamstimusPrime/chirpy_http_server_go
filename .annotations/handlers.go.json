@@ -1,0 +1,12 @@
+{
+  "originalContent": "package main\n\nimport \"net/http\"\n\nfunc readinessHandler(w http.ResponseWriter, r *http.Request) {\n\t/*this handler sets the content-type field and other values of the response\n\tresponse to a specified value\n\tit does that using the .Header().Set function of the response writer*/\n\tw.Header().Set(\"Content-Type\", \"text/plain; charset=utf-8\")\n\tw.WriteHeader(http.StatusOK)\n\tmessage := \"OK\"\n\tw.Write([]byte(message))\n}\n\n\n",
+  "comments": [
+    {
+      "text": "/*this handler sets the content-type field and other values of the response\n\tresponse to a specified value\n\tit does that using the .Header().Set function of the response writer*/",
+      "line": 5,
+      "start": 98,
+      "end": 276
+    }
+  ],
+  "filePath": "handlers.go"
+}

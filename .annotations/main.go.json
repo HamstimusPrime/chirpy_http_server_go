@@ -1,29 +1,41 @@
 {
-  "originalContent": "package main\n\nimport (\n\t\"fmt\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\tport := \"8080\"\n\t/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/\n\tmux := http.NewServeMux()\n\n\t/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in that particular directory.*/\n\tfileServer := http.FileServer(http.Dir(\".\"))\n\tmux.Handle(\"/\", fileServer)\n\n\t/*we need to configure our server. set its ports and the multiplex that passes every request\n\tto a given endpoint to the function that handles that end point*/\n\tserver := &http.Server{\n\t\tAddr:    \":\" + port,\n\t\tHandler: mux,\n\t}\n\tfmt.Printf(\"server running on port: %v\\n\", port)\n\t/*when we use the server.ListenAndServe, the main function pauses execution until\n\tthe server is stopped. so any code beneath listenAndServe would not run until\n\tthe server is stopped*/\n\tlog.Fatal(server.ListenAndServe())\n}\n",
+  "originalContent": "package main\n\nimport (\n\t\"fmt\"\n\t\"log\"\n\t\"net/http\"\n\t\"sync/atomic\"\n)\n\ntype apiConfig struct {\n\tfileserverHits atomic.Int32\n}\n\nfunc (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {\n\treturn http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n\t\tcfg.fileserverHits.Add(1)\n\t\tnext.ServeHTTP(w, r)\n\t})\n}\n\nfunc (cfg *apiConfig) middleWareWriteMetrics(next http.Handler) http.Handler {\n\treturn http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n\n\t})\n}\n\nfunc (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {\n\tw.Header().Set(\"Content-Type\", \"text/plain; charset=utf-8\")\n\t//convert server hits into text first before writing it to response\n\thitRequest := cfg.fileserverHits\n\tnumRequest := fmt.Sprintf(\"Hits: %d\", hitRequest.Load())\n\tw.Write([]byte(numRequest))\n}\n\nfunc (cfg *apiConfig) resetMetricsHandler(w http.ResponseWriter, r *http.Request) {\n\tw.Header().Set(\"Content-Type\", \"text/plain; charset=utf-8\")\n\tcfg.fileserverHits = atomic.Int32{}\n}\n\nfunc main() {\n\tport := \"8080\"\n\t/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/\n\tmux := http.NewServeMux()\n\t/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in the directory OR the file with the name index.html in the directory.*/\n\tfileServer := http.FileServer(http.Dir(\".\"))\n\t/*we want the endpoint that the client makes requests to for file-serving to be \"/app/\" but\n\tthe actual location of the files to be the root. in order to pull this off, we first remove\n\t\"/app\" from the endpoint before passing it to the handler. we do this using the http.StripPrefix function*/\n\tapiConfiguration := apiConfig{}\n\thandler := http.StripPrefix(\"/app\", fileServer)\n\tmux.Handle(\"/app/\", apiConfiguration.middlewareMetricsInc(handler))\n\tmux.HandleFunc(\"/healthz\", readinessHandler)\n\tmux.HandleFunc(\"/metrics\", apiConfiguration.metricsHandler)\n\tmux.HandleFunc(\"/reset\", apiConfiguration.resetMetricsHandler)\n\n\t/*we need to configure our server. set its ports and the multiplex that passes every request\n\tto a given endpoint to the function that handles that end point*/\n\tserver := &http.Server{\n\t\tAddr:    \":\" + port,\n\t\tHandler: mux,\n\t}\n\tfmt.Printf(\"server running on port: %v\\n\", port)\n\t/*when we use the server.ListenAndServe, the main function pauses execution until\n\tthe server is stopped. so any code beneath listenAndServe would not run until\n\tthe server is stopped*/\n\tlog.Fatal(server.ListenAndServe())\n\n}\n",
   "comments": [
     {
-      "text": "/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/",
-      "line": 10,
-      "start": 83,
-      "end": 259
+      "text": "//convert server hits into text first before writing it to response",
+      "line": 28,
+      "start": 630,
+      "end": 697
     },
     {
-      "text": "/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in that particular directory.*/",
-      "line": 15,
-      "start": 289,
-      "end": 510
+      "text": "/*The mux method is one that creates a server that can handle\n\trequests to multiple request endpoints. Each request to a given endpoint needs a handler\n\tfunction to handle it*/",
+      "line": 41,
+      "start": 1038,
+      "end": 1214
+    },
+    {
+      "text": "/*in order to Send back(serve) static data(a file), we make our handler one that serves\n\tfiles. The file server function take a directory address as an argument, to send back\n\tall the files in the directory OR the file with the name index.html in the directory.*/",
+      "line": 45,
+      "start": 1243,
+      "end": 1506
+    },
+    {
+      "text": "/*we want the endpoint that the client makes requests to for file-serving to be \"/app/\" but\n\tthe actual location of the files to be the root. in order to pull this off, we first remove\n\t\"/app\" from the endpoint before passing it to the handler. we do this using the http.StripPrefix function*/",
+      "line": 49,
+      "start": 1554,
+      "end": 1847
     },
     {
       "text": "/*we need to configure our server. set its ports and the multiplex that passes every request\n\tto a given endpoint to the function that handles that end point*/",
-      "line": 21,
-      "start": 588,
-      "end": 747
+      "line": 59,
+      "start": 2172,
+      "end": 2331
     },
     {
       "text": "/*when we use the server.ListenAndServe, the main function pauses execution until\n\tthe server is stopped. so any code beneath listenAndServe would not run until\n\tthe server is stopped*/",
-      "line": 28,
-      "start": 866,
-      "end": 1051
+      "line": 66,
+      "start": 2450,
+      "end": 2635
     }
   ],
   "filePath": "main.go"
