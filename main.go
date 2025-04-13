@@ -25,11 +25,10 @@ func (cfg *apiConfig) middleWareWriteMetrics(next http.Handler) http.Handler {
 }
 
 func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	hitRequest := cfg.fileserverHits
-	numRequest := fmt.Sprintf("Hits: %d", hitRequest.Load())
-	w.Write([]byte(numRequest))
+	metricsPageHTML := fmt.Sprintf("<html>\n<body>\n<h1>Welcome, Chirpy Admin</h1>\n<p>Chirpy has been visited %d times!</p>\n</body>\n</html>", hitRequest.Load())
+	w.Write([]byte(metricsPageHTML))
 }
 
 func (cfg *apiConfig) resetMetricsHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,13 +42,14 @@ func main() {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("."))
-
+	//#comment:S+342*&
 	apiConfiguration := apiConfig{}
 	handler := http.StripPrefix("/app", fileServer)
 	mux.Handle("/app/", apiConfiguration.middlewareMetricsInc(handler))
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
-	mux.HandleFunc("GET /api/metrics", apiConfiguration.metricsHandler)
-	mux.HandleFunc("POST /api/reset", apiConfiguration.resetMetricsHandler)
+	mux.HandleFunc("GET /admin/metrics", apiConfiguration.metricsHandler)
+	mux.HandleFunc("POST /admin/reset", apiConfiguration.resetMetricsHandler)
+	mux.HandleFunc("POST /api/validate_chirp", chirpValidateHandler)
 
 	server := &http.Server{
 		Addr:    ":" + port,
