@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
+	"strings"
 )
 
 type reqestBody struct {
@@ -45,11 +45,35 @@ func chirpValidateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resJSON, err := json.Marshal(resMsg{Valid: true})
-	if err != nil {
-		log.Fatal("unable to parse response JSON")
+	filteredChirp := filterProfaneWords(parsedRequest.Body)
+
+	status := http.StatusOK
+	reqestBody := struct {
+		Cleaned_body string `json:"cleaned_body"`
+	}{
+		Cleaned_body: filteredChirp,
 	}
-	w.Header().Set("Content-Type", "json/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(resJSON))
+
+	respondWithJSON(w, reqestBody, status)
+
+}
+
+func filterProfaneWords(words string) string {
+	profaneWords := map[string]bool{
+		"kerfuffle": true,
+		"sharbert":  true,
+		"fornax":    true,
+	}
+	//convert entire string to lowercase
+	censorCharacter := "****"
+	//convert wordsLower text to list  of single words
+	wordsList := strings.Split(words, " ")
+	for i, _ := range wordsList {
+		wordLower := strings.ToLower(wordsList[i])
+		_, ok := profaneWords[wordLower]
+		if ok {
+			wordsList[i] = censorCharacter
+		}
+	}
+	return strings.Join(wordsList, " ")
 }
