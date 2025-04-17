@@ -24,3 +24,15 @@ func respondWithJSON(w http.ResponseWriter, reqBod interface{}, HTTPstatus int) 
 	w.WriteHeader(HTTPstatus)
 	w.Write([]byte(resJSON))
 }
+
+func parseReqBody(w http.ResponseWriter, req *http.Request, format reqestBody) (reqestBody, error) {
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(&format)
+	if err != nil {
+		errMsg := "something went wrong"
+		status := http.StatusCreated
+		respondWithError(w, errMsg, status)
+		return reqestBody{}, err
+	}
+	return format, nil
+}

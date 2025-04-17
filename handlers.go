@@ -6,16 +6,8 @@ import (
 	"strings"
 )
 
-type reqestBody struct {
-	Body string `json:"body"`
-}
-
 type errorMsg struct {
 	Error string `json:"error"`
-}
-
-type resMsg struct {
-	Valid bool `json:"valid"`
 }
 
 func readinessHandler(w http.ResponseWriter, r *http.Request) {
