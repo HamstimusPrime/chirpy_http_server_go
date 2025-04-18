@@ -23,15 +23,24 @@ type apiConfig struct {
 }
 
 type reqestBody struct {
-	Body  string `json:"body"`
-	Email string `json:"email"`
+	Body   string    `json:"body"`
+	Email  string    `json:"email"`
+	UserID uuid.UUID `json:"user_id"`
 }
 
-type User struct {
+type user struct {
 	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+}
+
+type chirpBody struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
@@ -65,13 +74,22 @@ func (cfg *apiConfig) usersHandler(w http.ResponseWriter, r *http.Request) {
 	newReqBody, err := parseReqBody(w, r, reqestBody{})
 	if err != nil {
 		fmt.Printf("unable to parse request body, err: %v\n", err)
-	}
-	dbUser, err := cfg.DB.CreateUser(context.Background(), newReqBody.Email)
-	if err != nil {
-		log.Fatalf("unable to create new user, err: %v\n", err)
+		return
 	}
 
-	newUser := User{
+	//validate user here
+	// err = validateUserWithEmail(newReqBody.Email, context.Background(), cfg)
+	// if err != nil {
+	// 	return
+	// }
+
+	dbUser, err := cfg.DB.CreateUser(context.Background(), newReqBody.Email)
+	if err != nil {
+		fmt.Printf("unable to create new user, err: %v\n", err)
+		return
+	}
+
+	newUser := user{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
@@ -79,6 +97,39 @@ func (cfg *apiConfig) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	httpResponseStatus := http.StatusCreated
 	respondWithJSON(w, newUser, httpResponseStatus)
+}
+
+func (cfg *apiConfig) chirpsHandler(w http.ResponseWriter, r *http.Request) {
+	newReqBody, err := parseReqBody(w, r, reqestBody{})
+	if err != nil {
+		fmt.Printf("unable to parse request body, err: %v\n", err)
+		return
+	}
+	// err = validateUserWithID(cfg, newReqBody.UserID)
+	// if err != nil {
+	// 	return
+	// }
+	chirpParams := database.CreateChirpParams{
+		ID:     uuid.New(),
+		Body:   newReqBody.Body,
+		UserID: newReqBody.UserID,
+	}
+
+	chirp, err := cfg.DB.CreateChirp(context.Background(), chirpParams)
+	if err != nil {
+		fmt.Printf("unable to create new chirp, err: %v\n", err)
+	}
+
+	newChirp := chirpBody{
+		ID:        chirp.ID,
+		CreatedAt: chirp.CreatedAt,
+		UpdatedAt: chirp.UpdatedAt,
+		Body:      chirp.Body,
+		UserID:    chirp.UserID,
+	}
+
+	respondWithJSON(w, newChirp, http.StatusCreated)
+
 }
 
 func main() {
@@ -106,7 +157,7 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 	mux.HandleFunc("GET /admin/metrics", apiConfiguration.metricsHandler)
 	mux.HandleFunc("POST /admin/reset", apiConfiguration.resetMetricsHandler)
-	mux.HandleFunc("POST /api/validate_chirp", chirpValidateHandler)
+	mux.HandleFunc("POST /api/chirps", apiConfiguration.chirpsHandler)
 	mux.HandleFunc("POST /api/users", apiConfiguration.usersHandler)
 
 	server := &http.Server{

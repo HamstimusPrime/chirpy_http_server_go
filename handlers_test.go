@@ -29,3 +29,7 @@ func TestFilterProfaneWords(t *testing.T) {
 		t.Logf("output: %s\n", filterProfaneWords(c.output))
 	}
 }
+
+func TesContainsProfaneWords(t *testing.T) {
+
+}

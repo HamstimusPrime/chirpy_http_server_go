@@ -1,0 +1,22 @@
+"filename", "language", "MS SQL", "Go", "Go Checksum File", "YAML", "Go Module File", "JSON", "HTML", "comment", "blank", "total"
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/.annotations/handlers.go.json", "JSON", 0, 0, 0, 0, 0, 12, 0, 0, 0, 12
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/.annotations/main.go.json", "JSON", 0, 0, 0, 0, 0, 42, 0, 0, 0, 42
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.mod", "Go Module File", 0, 0, 0, 0, 7, 0, 0, 0, 3, 10
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.sum", "Go Checksum File", 0, 0, 6, 0, 0, 0, 0, 0, 1, 7
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/handlers.go", "Go", 0, 69, 0, 0, 0, 0, 0, 8, 16, 93
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/handlers_test.go", "Go", 0, 27, 0, 0, 0, 0, 0, 0, 5, 32
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/index.html", "HTML", 0, 0, 0, 0, 0, 0, 5, 0, 2, 7
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/chirps.sql.go", "Go", 0, 33, 0, 0, 0, 0, 0, 4, 8, 45
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/db.go", "Go", 0, 22, 0, 0, 0, 0, 0, 3, 7, 32
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/get_user.sql.go", "Go", 0, 37, 0, 0, 0, 0, 0, 4, 10, 51
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/models.go", "Go", 0, 18, 0, 0, 0, 0, 0, 3, 6, 27
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/users.sql.go", "Go", 0, 33, 0, 0, 0, 0, 0, 4, 8, 45
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/main.go", "Go", 0, 130, 0, 0, 0, 0, 0, 7, 24, 161
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/chirps.sql", "MS SQL", 9, 0, 0, 0, 0, 0, 0, 1, 1, 11
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/get_user.sql", "MS SQL", 6, 0, 0, 0, 0, 0, 0, 2, 3, 11
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/users.sql", "MS SQL", 10, 0, 0, 0, 0, 0, 0, 2, 2, 14
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/001_users.sql", "MS SQL", 7, 0, 0, 0, 0, 0, 0, 2, 1, 10
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/002_chirps.sql", "MS SQL", 12, 0, 0, 0, 0, 0, 0, 2, 1, 15
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sqlc.yaml", "YAML", 0, 0, 0, 8, 0, 0, 0, 0, 0, 8
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/utils.go", "Go", 0, 53, 0, 0, 0, 0, 0, 0, 7, 60
+"Total", "-", 44, 422, 6, 8, 7, 54, 5, 42, 105, 693
