@@ -34,6 +34,13 @@ type user struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
 }
+type chirp struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
+	UserID    string    `json:"user_id"`
+}
 
 type chirpBody struct {
 	ID        uuid.UUID `json:"id"`
@@ -56,10 +63,27 @@ func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(metricsPageHTML))
 }
 
-func (cfg *apiConfig) resetMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
+	dbAllChirps, err := cfg.DB.GetAllChirps(context.Background())
+	if err != nil {
+		fmt.Printf("unable to fetcha all users, err: %v\n", err)
+		return
+	}
+	//parse each user into a json compatible struct
+	allChirps := make([]chirp, len(dbAllChirps))
+	for i := range dbAllChirps {
+		allChirps[i].ID = dbAllChirps[i].ID
+		allChirps[i].CreatedAt = dbAllChirps[i].CreatedAt
+		allChirps[i].UpdatedAt = dbAllChirps[i].UpdatedAt
+		allChirps[i].Body = dbAllChirps[i].Body
+	}
+	respondWithJSON(w, allChirps, http.StatusOK)
+}
+
+func (cfg *apiConfig) handlerResetMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	cfg.fileserverHits = atomic.Int32{}
-	//check if Platform is set to dev in order to give delete acess to users table
+	//check if Platform is set to dev in order to give "delete" acess to users table
 	if cfg.PLATFORM != "dev" {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.WriteHeader(http.StatusForbidden)
@@ -70,18 +94,12 @@ func (cfg *apiConfig) resetMetricsHandler(w http.ResponseWriter, r *http.Request
 	cfg.DB.DeleteAllUsers(context.Background())
 }
 
-func (cfg *apiConfig) usersHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	newReqBody, err := parseReqBody(w, r, reqestBody{})
 	if err != nil {
 		fmt.Printf("unable to parse request body, err: %v\n", err)
 		return
 	}
-
-	//validate user here
-	// err = validateUserWithEmail(newReqBody.Email, context.Background(), cfg)
-	// if err != nil {
-	// 	return
-	// }
 
 	dbUser, err := cfg.DB.CreateUser(context.Background(), newReqBody.Email)
 	if err != nil {
@@ -99,16 +117,13 @@ func (cfg *apiConfig) usersHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, newUser, httpResponseStatus)
 }
 
-func (cfg *apiConfig) chirpsHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerCreateChirps(w http.ResponseWriter, r *http.Request) {
 	newReqBody, err := parseReqBody(w, r, reqestBody{})
 	if err != nil {
 		fmt.Printf("unable to parse request body, err: %v\n", err)
 		return
 	}
-	// err = validateUserWithID(cfg, newReqBody.UserID)
-	// if err != nil {
-	// 	return
-	// }
+
 	chirpParams := database.CreateChirpParams{
 		ID:     uuid.New(),
 		Body:   newReqBody.Body,
@@ -150,15 +165,15 @@ func main() {
 
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("."))
-	//#comment:S+342*&
 	apiConfiguration := apiConfig{DB: dbQueries, fileserverHits: atomic.Int32{}, PLATFORM: platform}
 	handler := http.StripPrefix("/app", fileServer)
 	mux.Handle("/app/", apiConfiguration.middlewareMetricsInc(handler))
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
+	mux.HandleFunc("GET /api/chirps", apiConfiguration.handlerGetAllChirps)
 	mux.HandleFunc("GET /admin/metrics", apiConfiguration.metricsHandler)
-	mux.HandleFunc("POST /admin/reset", apiConfiguration.resetMetricsHandler)
-	mux.HandleFunc("POST /api/chirps", apiConfiguration.chirpsHandler)
-	mux.HandleFunc("POST /api/users", apiConfiguration.usersHandler)
+	mux.HandleFunc("POST /admin/reset", apiConfiguration.handlerResetMetrics)
+	mux.HandleFunc("POST /api/chirps", apiConfiguration.handlerCreateChirps)
+	mux.HandleFunc("POST /api/users", apiConfiguration.handlerCreateUser)
 
 	server := &http.Server{
 		Addr:    ":" + port,

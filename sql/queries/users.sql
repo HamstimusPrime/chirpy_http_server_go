@@ -12,3 +12,9 @@ RETURNING *;
 -- name: DeleteAllUsers :exec
 DELETE FROM users
 RETURNING *;
+
+
+-- name: GetAllUsers :many
+
+SELECT * FROM users
+ORDER BY created_at ASC;

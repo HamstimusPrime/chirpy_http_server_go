@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -10,8 +11,8 @@ func parseReqBody(w http.ResponseWriter, req *http.Request, format reqestBody) (
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&format)
 	if err != nil {
-		errMsg := "something went wrong"
-		status := http.StatusCreated
+		errMsg := fmt.Sprintf("something went wrong, err: %v\n", err)
+		status := http.StatusBadRequest
 		respondWithError(w, errMsg, status)
 		return reqestBody{}, err
 	}
@@ -36,21 +37,3 @@ func respondWithJSON(w http.ResponseWriter, resTemplate interface{}, HTTPstatus 
 	w.WriteHeader(HTTPstatus)
 	w.Write([]byte(resJSON))
 }
-
-// func validateUserWithEmail(email string, cfg *apiConfig) error {
-// 	_, err := cfg.DB.GetUserByEmail(context.Background(), email)
-// 	if err != nil {
-// 		fmt.Printf("unable to validate user with email: %v, error: %v\n", email, err)
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func validateUserWithID(cfg *apiConfig, id uuid.UUID) error {
-// 	_, err := cfg.DB.GetUserByID(context.Background(), id)
-// 	if err != nil {
-// 		fmt.Printf("unable to validate user with email: %v, error: %v\n", id, err)
-// 		return err
-// 	}
-// 	return nil
-// }
