@@ -10,11 +10,16 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/HamstimusPrime/chirpy_http_server_go/internal/auth"
 	"github.com/HamstimusPrime/chirpy_http_server_go/internal/database"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+type errorMsg struct {
+	Error string `json:"error"`
+}
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
@@ -23,9 +28,10 @@ type apiConfig struct {
 }
 
 type reqestBody struct {
-	Body   string    `json:"body"`
-	Email  string    `json:"email"`
-	UserID uuid.UUID `json:"user_id"`
+	Body     string    `json:"body"`
+	Email    string    `json:"email"`
+	UserID   uuid.UUID `json:"user_id"`
+	Password string    `json:"password"`
 }
 
 type user struct {
@@ -44,7 +50,7 @@ type chirp struct {
 }
 
 func (cfg *apiConfig) handlerCreateChirps(w http.ResponseWriter, r *http.Request) {
-	newReqBody, err := parseReqBody(w, r, reqestBody{})
+	newReqBody, err := parseReqBody(r, reqestBody{})
 	if err != nil {
 		fmt.Printf("unable to parse request body, err: %v\n", err)
 		return
@@ -73,13 +79,28 @@ func (cfg *apiConfig) handlerCreateChirps(w http.ResponseWriter, r *http.Request
 }
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
-	newReqBody, err := parseReqBody(w, r, reqestBody{})
+	newReqBody, err := parseReqBody(r, reqestBody{})
 	if err != nil {
 		fmt.Printf("unable to parse request body, err: %v\n", err)
 		return
 	}
-
-	dbUser, err := cfg.DB.CreateUser(context.Background(), newReqBody.Email)
+	//check if body contains password
+	if newReqBody.Password == "" {
+		responseMsg := "no password provided. Please input password"
+		respondWithError(w, responseMsg, http.StatusBadRequest)
+		return
+	}
+	//hash the password sent
+	hashPassword, err := auth.HashPassword(newReqBody.Password)
+	if err != nil {
+		fmt.Printf("unable to hash password, err: %v\n", err)
+		return
+	}
+	createUserParams := database.CreateUserParams{
+		Email:          newReqBody.Email,
+		HashedPassword: hashPassword,
+	}
+	dbUser, err := cfg.DB.CreateUser(context.Background(), createUserParams)
 	if err != nil {
 		fmt.Printf("unable to create new user, err: %v\n", err)
 		return
@@ -136,6 +157,53 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, chirp, http.StatusOK)
 }
 
+func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
+	newReqBody, err := parseReqBody(r, reqestBody{})
+	if err != nil {
+		errMsg := fmt.Sprintf("unable to parse request body, err: %v", err)
+		fmt.Println(errMsg)
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+
+	userPassword := newReqBody.Password
+	userEmail := newReqBody.Email
+	//check if password was provided
+	if userPassword == "" {
+		errMsg := "no password provided"
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+	//check if email exists
+	if userEmail == "" {
+		errMsg := "no email provided"
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+
+	//fetch user with email
+	dbUser, err := fetchUserWithEmail(userEmail, cfg)
+	if err != nil {
+		errMsg := fmt.Sprintf("unable to validate user with email: %v, error: %v\n", userEmail, err)
+		respondWithError(w, errMsg, http.StatusBadRequest)
+	}
+
+	//check if password of userPassword matches userPassword
+	err = auth.CheckPasswordHash(dbUser.HashedPassword, userPassword)
+	if err != nil {
+		errorMsg := "Incorrect email or password"
+		respondWithError(w, errorMsg, http.StatusUnauthorized)
+		return
+	}
+	newUser := user{
+		ID:        dbUser.ID,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+		Email:     dbUser.Email,
+	}
+	respondWithJSON(w, newUser, http.StatusOK)
+}
+
 func (cfg *apiConfig) handlerResetMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	cfg.fileserverHits = atomic.Int32{}
@@ -189,6 +257,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiConfiguration.metricsHandler)
 	mux.HandleFunc("POST /admin/reset", apiConfiguration.handlerResetMetrics)
 	mux.HandleFunc("POST /api/chirps", apiConfiguration.handlerCreateChirps)
+	mux.HandleFunc("POST /api/login", apiConfiguration.handlerUserLogin)
 	mux.HandleFunc("POST /api/users", apiConfiguration.handlerCreateUser)
 
 	server := &http.Server{

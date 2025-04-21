@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-type errorMsg struct {
-	Error string `json:"error"`
-}
-
 var profaneWords = map[string]bool{
 	"kerfuffle": true,
 	"sharbert":  true,

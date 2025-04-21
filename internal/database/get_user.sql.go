@@ -13,7 +13,7 @@ import (
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 
-SELECT id, created_at, updated_at, email FROM users
+SELECT id, created_at, updated_at, email, hashed_password FROM users
 WHERE email = $1
 LIMIT 1
 `
@@ -26,13 +26,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Email,
+		&i.HashedPassword,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
 
-SELECT id, created_at, updated_at, email FROM users
+SELECT id, created_at, updated_at, email, hashed_password FROM users
 WHERE id = $1
 LIMIT 1
 `
@@ -45,6 +46,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Email,
+		&i.HashedPassword,
 	)
 	return i, err
 }

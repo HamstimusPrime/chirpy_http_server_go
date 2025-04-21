@@ -1,19 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/HamstimusPrime/chirpy_http_server_go/internal/database"
 )
 
-func parseReqBody(w http.ResponseWriter, req *http.Request, format reqestBody) (reqestBody, error) {
+func parseReqBody(req *http.Request, format reqestBody) (reqestBody, error) {
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&format)
 	if err != nil {
-		errMsg := fmt.Sprintf("something went wrong, err: %v\n", err)
-		status := http.StatusBadRequest
-		respondWithError(w, errMsg, status)
 		return reqestBody{}, err
 	}
 	return format, nil
@@ -36,4 +35,12 @@ func respondWithJSON(w http.ResponseWriter, resTemplate interface{}, HTTPstatus 
 	w.Header().Set("Content-Type", "json/plain; charset=utf-8")
 	w.WriteHeader(HTTPstatus)
 	w.Write([]byte(resJSON))
+}
+
+func fetchUserWithEmail(email string, cfg *apiConfig) (database.User, error) {
+	user, err := cfg.DB.GetUserByEmail(context.Background(), email)
+	if err != nil {
+		return database.User{}, err
+	}
+	return user, nil
 }
