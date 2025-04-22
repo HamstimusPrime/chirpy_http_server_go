@@ -77,11 +77,11 @@ func filterProfaneWords(words string) string {
 
 func containsProfaneWords(words string) (string, error) {
 	wordsList := strings.Split(words, " ")
-	for i, _ := range wordsList {
+	for i := range wordsList {
 		wordLower := strings.ToLower(wordsList[i])
 		_, ok := profaneWords[wordLower]
 		if ok {
-			return wordsList[i], fmt.Errorf("found profane word \n", wordsList[i])
+			return wordsList[i], fmt.Errorf("found profane word: %v", wordsList[i])
 		}
 	}
 	return "", nil
