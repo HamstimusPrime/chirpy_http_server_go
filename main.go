@@ -18,7 +18,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
+	jwt_secret := os.Getenv("JWT_SECRET")
 	dbURL := os.Getenv("DB_URL")
 	port := os.Getenv("PORT")
 	platform := os.Getenv("PLATFORM")
@@ -30,7 +30,12 @@ func main() {
 	dbQueries := database.New(db)
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("."))
-	apiConfiguration := apiConfig{DB: dbQueries, fileserverHits: atomic.Int32{}, PLATFORM: platform}
+
+	apiConfiguration := apiConfig{DB: dbQueries,
+		fileserverHits: atomic.Int32{},
+		PLATFORM:       platform,
+		JWT_SECRET:     jwt_secret}
+
 	handler := http.StripPrefix("/app", fileServer)
 	mux.Handle("/app/", apiConfiguration.middlewareMetricsInc(handler))
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
