@@ -7,6 +7,9 @@ package database
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -47,5 +50,47 @@ RETURNING id, created_at, updated_at, email, hashed_password
 
 func (q *Queries) DeleteAllUsers(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteAllUsers)
+	return err
+}
+
+const updateUserEmail = `-- name: UpdateUserEmail :one
+UPDATE users
+SET email = $1, updated_at = $2
+WHERE ID = $3
+RETURNING email, updated_at, created_at
+`
+
+type UpdateUserEmailParams struct {
+	Email     string
+	UpdatedAt time.Time
+	ID        uuid.UUID
+}
+
+type UpdateUserEmailRow struct {
+	Email     string
+	UpdatedAt time.Time
+	CreatedAt time.Time
+}
+
+func (q *Queries) UpdateUserEmail(ctx context.Context, arg UpdateUserEmailParams) (UpdateUserEmailRow, error) {
+	row := q.db.QueryRowContext(ctx, updateUserEmail, arg.Email, arg.UpdatedAt, arg.ID)
+	var i UpdateUserEmailRow
+	err := row.Scan(&i.Email, &i.UpdatedAt, &i.CreatedAt)
+	return i, err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET hashed_password = $1
+WHERE id = $2
+`
+
+type UpdateUserPasswordParams struct {
+	HashedPassword string
+	ID             uuid.UUID
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.HashedPassword, arg.ID)
 	return err
 }

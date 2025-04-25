@@ -15,3 +15,15 @@ DELETE FROM users
 RETURNING *;
 
 
+-- name: UpdateUserPassword :exec
+UPDATE users
+SET hashed_password = $1
+WHERE id = $2;
+
+
+
+-- name: UpdateUserEmail :one
+UPDATE users
+SET email = $1, updated_at = $2
+WHERE ID = $3
+RETURNING email, updated_at, created_at;;

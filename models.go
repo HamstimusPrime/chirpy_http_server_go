@@ -122,7 +122,12 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	newUser := user{
+	newUser := struct {
+		ID        uuid.UUID `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+		Email     string    `json:"email"`
+	}{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
@@ -173,6 +178,98 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, chirp, http.StatusOK)
 }
 
+func (cfg *apiConfig) handlerUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	newReqBody, err := parseReqBody(r, reqestBody{})
+	if err != nil {
+		errMsg := fmt.Sprintf("unable to parse request body, err: %v\n", err)
+		fmt.Println(errMsg)
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+	//get token from client
+	token, err := auth.GetBearerToken(r.Header)
+	errMsg := "something went wrong"
+	if err != nil {
+		fmt.Printf("unable to get bearer token, err: %v\n", err)
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+	//check for password from request.
+	if !passwordInRequestBody(newReqBody) {
+		errMsg := "no password provided"
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+	//fetch user ID using jwt token
+	userID, err := auth.ValidateJWT(token, cfg.JWT_SECRET)
+	if err != nil {
+		fmt.Printf("error validating user with token:%v \nerr: %v\n", token, err)
+		errMsg := "something went wrong"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+
+	dbUser, err := cfg.DB.GetUserByID(context.Background(), userID)
+	if err != nil {
+		fmt.Printf("error fetching user with token:%v \nerr: %v\n", token, err)
+		errMsg := "unauthorized access"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+	//hash password sent from client
+	hashedPassword, err := auth.HashPassword(newReqBody.Password)
+	if err != nil {
+		fmt.Printf("error hashing password:%v \nerr: %v\n", token, err)
+		errMsg := "something went wrong"
+		respondWithError(w, errMsg, http.StatusInternalServerError)
+		return
+	}
+
+	//update email of the user
+	updateEmailParams := database.UpdateUserEmailParams{
+		Email:     newReqBody.Email,
+		ID:        dbUser.ID,
+		UpdatedAt: time.Now(),
+	}
+
+	//update password of user
+	updatePasswordParams := database.UpdateUserPasswordParams{
+		HashedPassword: hashedPassword,
+		ID:             dbUser.ID,
+	}
+	err = cfg.DB.UpdateUserPassword(context.Background(), updatePasswordParams)
+	if err != nil {
+		fmt.Printf("error updating password with user:%v \nerr: %v\n", dbUser.ID, err)
+		errMsg := "unauthorized access"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+
+	//updated user here
+	userData, err := cfg.DB.UpdateUserEmail(context.Background(), updateEmailParams)
+	if err != nil {
+		fmt.Printf("error updating emial with user:%v \nerr: %v\n", dbUser.ID, err)
+		errMsg := "unauthorized access"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+
+	updatedUser := struct {
+		ID        uuid.UUID `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+		Email     string    `json:"email"`
+	}{
+		ID:        dbUser.ID,
+		CreatedAt: userData.UpdatedAt,
+		UpdatedAt: userData.UpdatedAt,
+		Email:     userData.Email,
+	}
+
+	respondWithJSON(w, updatedUser, http.StatusOK)
+
+}
+
 func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	newReqBody, err := parseReqBody(r, reqestBody{})
 	if err != nil {
@@ -185,12 +282,14 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	userPassword := newReqBody.Password
 	userEmail := newReqBody.Email
 	expiry_time := newReqBody.ExpiresInSeconds
+
 	//check if password was provided
-	if userPassword == "" {
+	if !passwordInRequestBody(newReqBody) {
 		errMsg := "no password provided"
 		respondWithError(w, errMsg, http.StatusBadRequest)
 		return
 	}
+
 	//check if email was provided
 	if userEmail == "" {
 		errMsg := "no email provided"
@@ -269,7 +368,7 @@ func (cfg *apiConfig) handlerRefreshToken(w http.ResponseWriter, r *http.Request
 	errMsg := "something went wrong"
 	if err != nil {
 		fmt.Printf("unable to get bearer token, err: %v", err)
-		respondWithError(w, errMsg, http.StatusInternalServerError)
+		respondWithError(w, errMsg, http.StatusBadRequest)
 		return
 	}
 
