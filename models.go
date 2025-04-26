@@ -137,6 +137,62 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, newUser, httpResponseStatus)
 }
 
+func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request) {
+	//get access token
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		fmt.Printf("error fetching token, Token: %v\nerr: %v\n", token, err)
+		errMsg := "something went wrong fetching token"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+	//authenticate user using JWT and get userID linked to token
+	userID, err := auth.ValidateJWT(token, cfg.JWT_SECRET)
+	if err != nil {
+		fmt.Printf("error validating token, Token: %v\nerr: %v\n", token, err)
+		errMsg := "unauthorized access"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+
+	chirpIDstr := r.PathValue("chirpID")
+	chirpID, err := uuid.Parse(chirpIDstr)
+	if err != nil {
+		errorMsg := fmt.Sprintf("invalid UUID: %v, err: %v", chirpIDstr, err)
+		respondWithError(w, errorMsg, http.StatusBadRequest)
+		return
+	}
+
+	//check if chirp exists
+	_, err = cfg.DB.GetChirp(context.Background(), chirpID)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error fetching chirp with chirpID: %v\n, err: %v\n", chirpID, err)
+		respondWithError(w, errorMsg, http.StatusNotFound)
+		return
+	}
+
+	getChirpByUserIDparams := database.GetChirpByUserIDParams{
+		UserID: userID,
+		ID:     chirpID,
+	}
+	_, err = cfg.DB.GetChirpByUserID(context.Background(), getChirpByUserIDparams)
+	if err != nil {
+		errorMsg := fmt.Sprintf("error matching userID: %v, with chirpID: %v, err: %v\n", userID, chirpID, err)
+		respondWithError(w, errorMsg, http.StatusForbidden)
+		return
+	}
+
+	//delete chirp
+	err = cfg.DB.DeleteChirpByID(context.Background(), chirpID)
+	if err != nil {
+		errorMsg := "something went wrong deleting chirp"
+		respondWithError(w, errorMsg, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
 	dbAllChirps, err := cfg.DB.GetAllChirps(context.Background())
 	if err != nil {
@@ -167,6 +223,7 @@ func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errorMsg := fmt.Sprintf("could not find user with id: %v, err: %v", chirpIDstr, err)
 		respondWithError(w, errorMsg, http.StatusNotFound)
+		return
 	}
 	chirp := chirp{
 		ID:        dbChirp.ID,

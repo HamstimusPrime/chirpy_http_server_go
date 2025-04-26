@@ -47,8 +47,5 @@ func fetchUserWithEmail(email string, cfg *apiConfig) (database.User, error) {
 
 func passwordInRequestBody(body reqestBody) bool {
 	password := body.Password
-	if password == "" {
-		return false
-	}
-	return true
+	return password != ""
 }

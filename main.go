@@ -38,6 +38,7 @@ func main() {
 
 	handler := http.StripPrefix("/app", fileServer)
 	mux.Handle("/app/", apiConfiguration.middlewareMetricsInc(handler))
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiConfiguration.handlerDeleteChirp)
 	mux.HandleFunc("GET /api/healthz", readinessHandler)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiConfiguration.handlerGetChirp)
 	mux.HandleFunc("GET /api/chirps", apiConfiguration.handlerGetAllChirps)
