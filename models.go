@@ -39,6 +39,7 @@ type user struct {
 	Email        string    `json:"email"`
 	Token        string    `json:"token"`
 	RefreshToken string    `json:"refresh_token"`
+	IsChirpyRed  bool      `json:"is_chirpy_red"`
 }
 
 type chirp struct {
@@ -47,6 +48,13 @@ type chirp struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Body      string    `json:"body"`
 	UserID    uuid.UUID `json:"user_id"`
+}
+
+type webhookRequest struct {
+	Event string `json:"event"`
+	Data  struct {
+		UserID string `json:"user_id"`
+	} `json:"data"`
 }
 
 func (cfg *apiConfig) handlerCreateChirps(w http.ResponseWriter, r *http.Request) {
@@ -123,15 +131,17 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	newUser := struct {
-		ID        uuid.UUID `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		Email     string    `json:"email"`
+		ID          uuid.UUID `json:"id"`
+		CreatedAt   time.Time `json:"created_at"`
+		UpdatedAt   time.Time `json:"updated_at"`
+		Email       string    `json:"email"`
+		IsChirpyRed bool      `json:"is_chirpy_red"`
 	}{
-		ID:        dbUser.ID,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
-		Email:     dbUser.Email,
+		ID:          dbUser.ID,
+		CreatedAt:   dbUser.CreatedAt,
+		UpdatedAt:   dbUser.UpdatedAt,
+		Email:       dbUser.Email,
+		IsChirpyRed: dbUser.IsChirpyRed,
 	}
 	httpResponseStatus := http.StatusCreated
 	respondWithJSON(w, newUser, httpResponseStatus)
@@ -312,15 +322,17 @@ func (cfg *apiConfig) handlerUpdatePassword(w http.ResponseWriter, r *http.Reque
 	}
 
 	updatedUser := struct {
-		ID        uuid.UUID `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		Email     string    `json:"email"`
+		ID          uuid.UUID `json:"id"`
+		CreatedAt   time.Time `json:"created_at"`
+		UpdatedAt   time.Time `json:"updated_at"`
+		Email       string    `json:"email"`
+		IsChirpyRed bool      `json:"is_chirpy_red"`
 	}{
-		ID:        dbUser.ID,
-		CreatedAt: userData.UpdatedAt,
-		UpdatedAt: userData.UpdatedAt,
-		Email:     userData.Email,
+		ID:          dbUser.ID,
+		CreatedAt:   userData.UpdatedAt,
+		UpdatedAt:   userData.UpdatedAt,
+		Email:       userData.Email,
+		IsChirpyRed: dbUser.IsChirpyRed,
 	}
 
 	respondWithJSON(w, updatedUser, http.StatusOK)
@@ -416,8 +428,49 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 		Email:        dbUser.Email,
 		Token:        jwtToken,
 		RefreshToken: refreshToken,
+		IsChirpyRed:  dbUser.IsChirpyRed,
 	}
 	respondWithJSON(w, newUser, http.StatusOK)
+}
+
+func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request) {
+	hookRequestData, err := parseHookRequestBody(r, webhookRequest{})
+	if err != nil {
+		errMsg := fmt.Sprintf("unable to parse hook request body, err: %v", err)
+		fmt.Println(errMsg)
+		respondWithError(w, errMsg, http.StatusBadRequest)
+		return
+	}
+
+	if hookRequestData.Event != "user.upgraded" {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	//update is_chirpy_red in DB and return 204 if ID sent by client isn't found
+	userID, err := uuid.Parse(hookRequestData.Data.UserID)
+	if err != nil {
+		fmt.Printf("unable to parse uuid: %v\n", hookRequestData.Data.UserID)
+		errMsg := "something went wrong"
+		respondWithError(w, errMsg, http.StatusInternalServerError)
+		return
+	}
+
+	isChirpyRedParams := database.UpdateIsChirpyRedParams{
+		IsChirpyRed: true,
+		ID:          userID,
+	}
+
+	err = cfg.DB.UpdateIsChirpyRed(context.Background(), isChirpyRedParams)
+
+	if err != nil {
+		fmt.Printf("unable to update is_chirpy_red, err:%v\n", err)
+		errMsg := "something went wrong"
+		respondWithError(w, errMsg, http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+
 }
 
 func (cfg *apiConfig) handlerRefreshToken(w http.ResponseWriter, r *http.Request) {
@@ -472,6 +525,25 @@ func (cfg *apiConfig) handlerRefreshToken(w http.ResponseWriter, r *http.Request
 
 }
 
+func (cfg *apiConfig) handlerResetMetrics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	cfg.fileserverHits = atomic.Int32{}
+	//check if Platform is set to dev in order to give "delete" acess to users table
+	if cfg.PLATFORM != "dev" {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusForbidden)
+		message := "unauthorized access!"
+		w.Write([]byte(message))
+		return
+	}
+	err := cfg.DB.DeleteAllUsers(context.Background())
+	if err != nil {
+		errMsg := "unable to reset all user entries"
+		respondWithError(w, errMsg, http.StatusInternalServerError)
+		return
+	}
+}
+
 func (cfg *apiConfig) handlerRevokeToken(w http.ResponseWriter, r *http.Request) {
 	errMsg := "something went wrong"
 
@@ -490,20 +562,6 @@ func (cfg *apiConfig) handlerRevokeToken(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func (cfg *apiConfig) handlerResetMetrics(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	cfg.fileserverHits = atomic.Int32{}
-	//check if Platform is set to dev in order to give "delete" acess to users table
-	if cfg.PLATFORM != "dev" {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.WriteHeader(http.StatusForbidden)
-		message := "unauthorized access!"
-		w.Write([]byte(message))
-		return
-	}
-	cfg.DB.DeleteAllUsers(context.Background())
 }
 
 func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,20 @@
+"filename", "language", "MS SQL", "Go", "Go Checksum File", "Go Module File", "comment", "blank", "total"
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.mod", "Go Module File", 0, 0, 0, 2, 0, 0, 2
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.sum", "Go Checksum File", 0, 0, 4, 0, 0, 0, 4
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/handlers.go", "Go", 0, -3, 0, 0, 0, -1, -4
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/auth/auth_test.go", "Go", 0, 51, 0, 0, 0, 6, 57
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/auth/authentication.go", "Go", 0, 74, 0, 0, 3, 14, 91
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/chirps.sql.go", "Go", 0, 78, 0, 0, 0, 8, 86
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/get_user.sql.go", "Go", 0, 2, 0, 0, 0, 0, 2
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/models.go", "Go", 0, 10, 0, 0, 0, 1, 11
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/refresh_tokens.sql.go", "Go", 0, 72, 0, 0, 4, 12, 88
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/users.sql.go", "Go", 0, 43, 0, 0, 0, 9, 52
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/main.go", "Go", 0, -77, 0, 0, -7, -14, -98
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/models.go", "Go", 0, 435, 0, 0, 27, 59, 521
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/chirps.sql", "MS SQL", 10, 0, 0, 0, 4, 8, 22
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/refresh_tokens.sql", "MS SQL", 17, 0, 0, 0, 3, 5, 25
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/users.sql", "MS SQL", 8, 0, 0, 0, 2, 5, 15
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/003_add_hashed_password_to_users.sql", "MS SQL", 4, 0, 0, 0, 2, 1, 7
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/004_create_refresh_tokens_table.sql", "MS SQL", 13, 0, 0, 0, 2, 1, 16
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/utils.go", "Go", 0, -9, 0, 0, 0, 1, -8
+"Total", "-", 52, 676, 4, 2, 40, 115, 889

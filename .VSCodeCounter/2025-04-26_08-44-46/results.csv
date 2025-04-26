@@ -1,0 +1,29 @@
+"filename", "language", "MS SQL", "Go", "JSON", "Go Checksum File", "YAML", "Go Module File", "HTML", "comment", "blank", "total"
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/.annotations/handlers.go.json", "JSON", 0, 0, 12, 0, 0, 0, 0, 0, 0, 12
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/.annotations/main.go.json", "JSON", 0, 0, 42, 0, 0, 0, 0, 0, 0, 42
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.mod", "Go Module File", 0, 0, 0, 0, 0, 9, 0, 0, 3, 12
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/go.sum", "Go Checksum File", 0, 0, 0, 10, 0, 0, 0, 0, 1, 11
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/handlers.go", "Go", 0, 66, 0, 0, 0, 0, 0, 8, 15, 89
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/handlers_test.go", "Go", 0, 27, 0, 0, 0, 0, 0, 0, 5, 32
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/index.html", "HTML", 0, 0, 0, 0, 0, 0, 5, 0, 2, 7
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/auth/auth_test.go", "Go", 0, 51, 0, 0, 0, 0, 0, 0, 6, 57
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/auth/authentication.go", "Go", 0, 74, 0, 0, 0, 0, 0, 3, 14, 91
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/chirps.sql.go", "Go", 0, 111, 0, 0, 0, 0, 0, 4, 16, 131
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/db.go", "Go", 0, 22, 0, 0, 0, 0, 0, 3, 7, 32
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/get_user.sql.go", "Go", 0, 39, 0, 0, 0, 0, 0, 4, 10, 53
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/models.go", "Go", 0, 28, 0, 0, 0, 0, 0, 3, 7, 38
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/refresh_tokens.sql.go", "Go", 0, 72, 0, 0, 0, 0, 0, 4, 12, 88
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/users.sql.go", "Go", 0, 76, 0, 0, 0, 0, 0, 4, 17, 97
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/main.go", "Go", 0, 53, 0, 0, 0, 0, 0, 0, 10, 63
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/models.go", "Go", 0, 435, 0, 0, 0, 0, 0, 27, 59, 521
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/chirps.sql", "MS SQL", 19, 0, 0, 0, 0, 0, 0, 5, 9, 33
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/get_user.sql", "MS SQL", 6, 0, 0, 0, 0, 0, 0, 2, 3, 11
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/refresh_tokens.sql", "MS SQL", 17, 0, 0, 0, 0, 0, 0, 3, 5, 25
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/users.sql", "MS SQL", 18, 0, 0, 0, 0, 0, 0, 4, 7, 29
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/001_users.sql", "MS SQL", 7, 0, 0, 0, 0, 0, 0, 2, 1, 10
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/002_chirps.sql", "MS SQL", 12, 0, 0, 0, 0, 0, 0, 2, 1, 15
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/003_add_hashed_password_to_users.sql", "MS SQL", 4, 0, 0, 0, 0, 0, 0, 2, 1, 7
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/004_create_refresh_tokens_table.sql", "MS SQL", 13, 0, 0, 0, 0, 0, 0, 2, 1, 16
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sqlc.yaml", "YAML", 0, 0, 0, 0, 8, 0, 0, 0, 0, 8
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/utils.go", "Go", 0, 44, 0, 0, 0, 0, 0, 0, 8, 52
+"Total", "-", 96, 1098, 54, 10, 8, 9, 5, 82, 220, 1582

@@ -27,3 +27,9 @@ UPDATE users
 SET email = $1, updated_at = $2
 WHERE ID = $3
 RETURNING email, updated_at, created_at;;
+
+
+-- name: UpdateIsChirpyRed :exec
+UPDATE users
+SET is_chirpy_red = $1
+WHERE id = $2;

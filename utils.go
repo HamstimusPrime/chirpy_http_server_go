@@ -18,6 +18,15 @@ func parseReqBody(req *http.Request, format reqestBody) (reqestBody, error) {
 	return format, nil
 }
 
+func parseHookRequestBody(req *http.Request, requestformat webhookRequest) (webhookRequest, error) {
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(&requestformat)
+	if err != nil {
+		return webhookRequest{}, err
+	}
+	return requestformat, nil
+}
+
 func respondWithError(w http.ResponseWriter, errMsg string, HTTPstatus int) {
 	w.WriteHeader(HTTPstatus)
 	errJSON, err := json.Marshal(errorMsg{Error: errMsg})
