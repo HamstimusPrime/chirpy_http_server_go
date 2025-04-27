@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"sort"
 	"sync/atomic"
 	"time"
 
@@ -210,6 +211,7 @@ func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
+
 	//check for author ID in query string from client and parse to uuid
 	authorIDstr := r.URL.Query().Get("author_id")
 	if authorIDstr != "" {
@@ -244,6 +246,14 @@ func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("unable to fetcha all users, err: %v\n", err)
 		return
 	}
+	//check for optional query parameter sort from client and order
+	//arrange by descending order
+	if r.URL.Query().Get("sort") == "desc" {
+		sort.Slice(dbAllChirps, func(i, j int) bool {
+			return dbAllChirps[i].CreatedAt.After(dbAllChirps[j].CreatedAt)
+		})
+	}
+
 	//parse each user into a json compatible struct
 	allChirps := make([]chirp, len(dbAllChirps))
 	for i := range dbAllChirps {
