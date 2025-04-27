@@ -18,7 +18,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	jwt_secret := os.Getenv("JWT_SECRET")
+	polkaKey := os.Getenv("POLKA_KEY")
+	jwtSecret := os.Getenv("JWT_SECRET")
 	dbURL := os.Getenv("DB_URL")
 	port := os.Getenv("PORT")
 	platform := os.Getenv("PLATFORM")
@@ -34,7 +35,8 @@ func main() {
 	apiConfiguration := apiConfig{DB: dbQueries,
 		fileserverHits: atomic.Int32{},
 		PLATFORM:       platform,
-		JWT_SECRET:     jwt_secret}
+		JWT_SECRET:     jwtSecret,
+		POLKA_KEY:      polkaKey}
 
 	handler := http.StripPrefix("/app", fileServer)
 	mux.Handle("/app/", apiConfiguration.middlewareMetricsInc(handler))

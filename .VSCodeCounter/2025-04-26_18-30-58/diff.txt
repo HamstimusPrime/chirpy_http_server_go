@@ -1,0 +1,41 @@
+Date : 2025-04-26 18:30:58
+Directory : /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go
+Total : 10 files,  84 codes, 4 comments, 19 blanks, all 107 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Go       |          7 |         77 |          1 |         12 |         90 |
+| MS SQL   |          3 |          7 |          3 |          7 |         17 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                    | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                       |         10 |         84 |          4 |         19 |        107 |
+| . (Files)                                                                                                               |          3 |         58 |          1 |          9 |         68 |
+| internal                                                                                                                |          4 |         19 |          0 |          3 |         22 |
+| internal/database                                                                                                       |          4 |         19 |          0 |          3 |         22 |
+| sql                                                                                                                     |          3 |          7 |          3 |          7 |         17 |
+| sql/queries                                                                                                             |          2 |          3 |          1 |          4 |          8 |
+| sql/schema                                                                                                              |          1 |          4 |          2 |          3 |          9 |
++-------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/get_user.sql.go             | Go       |          2 |          0 |          0 |          2 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/models.go                   | Go       |          1 |          0 |          0 |          1 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/refresh_tokens.sql.go       | Go       |          2 |          0 |          0 |          2 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/users.sql.go                | Go       |         14 |          0 |          3 |         17 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/main.go                                       | Go       |          1 |          0 |          0 |          1 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/models.go                                     | Go       |         49 |          1 |          8 |         58 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/chirps.sql                        | MS SQL   |          0 |          0 |          2 |          2 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/users.sql                         | MS SQL   |          3 |          1 |          2 |          6 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/005_add_is_chirpy_red_to_users.sql | MS SQL   |          4 |          2 |          3 |          9 |
+| /Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/utils.go                                      | Go       |          8 |          0 |          1 |          9 |
+| Total                                                                                                                   |          |         84 |          4 |         19 |        107 |
++-------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

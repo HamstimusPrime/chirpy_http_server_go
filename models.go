@@ -22,6 +22,7 @@ type apiConfig struct {
 	DB             *database.Queries
 	PLATFORM       string
 	JWT_SECRET     string
+	POLKA_KEY      string
 }
 
 type reqestBody struct {
@@ -434,6 +435,15 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) handlerPolkaWebhook(w http.ResponseWriter, r *http.Request) {
+	//return 404 if key from client does not match server API key
+	clientKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		fmt.Printf("client key mismatch\nkey: %v\n", clientKey)
+		errMsg := "unauthorized access"
+		respondWithError(w, errMsg, http.StatusUnauthorized)
+		return
+	}
+
 	hookRequestData, err := parseHookRequestBody(r, webhookRequest{})
 	if err != nil {
 		errMsg := fmt.Sprintf("unable to parse hook request body, err: %v", err)

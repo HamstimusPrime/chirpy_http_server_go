@@ -1,0 +1,12 @@
+"filename", "language", "MS SQL", "Go", "comment", "blank", "total"
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/get_user.sql.go", "Go", 0, 2, 0, 0, 2
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/models.go", "Go", 0, 1, 0, 0, 1
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/refresh_tokens.sql.go", "Go", 0, 2, 0, 0, 2
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/internal/database/users.sql.go", "Go", 0, 14, 0, 3, 17
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/main.go", "Go", 0, 1, 0, 0, 1
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/models.go", "Go", 0, 49, 1, 8, 58
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/chirps.sql", "MS SQL", 0, 0, 0, 2, 2
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/queries/users.sql", "MS SQL", 3, 0, 1, 2, 6
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/sql/schema/005_add_is_chirpy_red_to_users.sql", "MS SQL", 4, 0, 2, 3, 9
+"/Users/mohammed/workspace/github.com/hamstimusprime/chirpy_http_server_go/utils.go", "Go", 0, 8, 0, 1, 9
+"Total", "-", 7, 77, 4, 19, 107
