@@ -17,6 +17,10 @@ type errorMsg struct {
 	Error string `json:"error"`
 }
 
+type chirpsJSON []struct {
+	Body string `json:"body"`
+}
+
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	DB             *database.Queries
@@ -97,6 +101,7 @@ func (cfg *apiConfig) handlerCreateChirps(w http.ResponseWriter, r *http.Request
 		CreatedAt: dbChirp.CreatedAt,
 		UpdatedAt: dbChirp.UpdatedAt,
 		UserID:    dbChirp.UserID,
+		Body:      dbChirp.Body,
 	}
 
 	respondWithJSON(w, newChirp, http.StatusCreated)
@@ -204,7 +209,36 @@ func (cfg *apiConfig) handlerDeleteChirp(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, r *http.Request) {
+	//check for author ID in query string from client and parse to uuid
+	authorIDstr := r.URL.Query().Get("author_id")
+	if authorIDstr != "" {
+		authorID, err := uuid.Parse(authorIDstr)
+		if err != nil {
+			fmt.Printf("failed to parse authorID from client\nauthorID: %v\nerr: %v\n", authorID, err)
+			errorMsg := "something went wrong deleting chirp"
+			respondWithError(w, errorMsg, http.StatusInternalServerError)
+			return
+		}
+
+		//fetch chirps using parsed author ID
+		dbChirps, err := cfg.DB.GetChirpsByUserID(context.Background(), authorID)
+		if err != nil {
+			fmt.Printf("failed to fetch chirps with authorID\nauthorID: %v\nerr: %v\n", authorID, err)
+			errorMsg := "something went wrong deleting chirp"
+			respondWithError(w, errorMsg, http.StatusBadRequest)
+			return
+		}
+
+		//populate chirpJSON with chirps
+		chirps := make(chirpsJSON, len(dbChirps))
+		for i := range dbChirps {
+			chirps[i].Body = dbChirps[i]
+		}
+		respondWithJSON(w, chirps, http.StatusOK)
+		return
+	}
+
 	dbAllChirps, err := cfg.DB.GetAllChirps(context.Background())
 	if err != nil {
 		fmt.Printf("unable to fetcha all users, err: %v\n", err)
@@ -221,7 +255,7 @@ func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request
 	respondWithJSON(w, allChirps, http.StatusOK)
 }
 
-func (cfg *apiConfig) handlerGetChirp(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerGetChirpWithID(w http.ResponseWriter, r *http.Request) {
 	chirpIDstr := r.PathValue("chirpID")
 
 	chirpID, err := uuid.Parse(chirpIDstr)
